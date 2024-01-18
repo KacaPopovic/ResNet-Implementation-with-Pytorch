@@ -11,5 +11,16 @@ train_std = [0.16043035, 0.16043035, 0.16043035]
 
 
 class ChallengeDataset(Dataset):
-    # TODO implement the Dataset class according to the description
-    pass
+    def __init__(self, data, mode):
+        self.data = data
+        self.mode = mode
+        self._transform = tv.tranfsorms.Compose([tv.transforms.ToTensor()])
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, index):
+        if torch.is_tensor(index):
+            index = index.tolist()
+
+        pass

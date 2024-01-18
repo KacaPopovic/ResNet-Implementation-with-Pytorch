@@ -10,7 +10,6 @@ dependencies:
   - pandas
   - matplotlib
   - pytorch==1.3.*
-  - torchvision==0.4.*
   - cuda100
   - pip
   - scikit-image
