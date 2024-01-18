@@ -33,18 +33,19 @@ class ResBlock(nn.Module):
         out = F.relu(out)
         return out
 
+
 class ResNet(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(3,64,7,2)
+        self.conv1 = nn.Conv2d(3, 64, 7, 2)
         self.bn1 = nn.BatchNorm2d(64)
-        self.max_pool = nn.MaxPool2d(3,2)
-        self.res1 = ResBlock(64,64,1)
-        self.res2 = ResBlock(64,128,2)
+        self.max_pool = nn.MaxPool2d(3, 2)
+        self.res1 = ResBlock(64, 64, 1)
+        self.res2 = ResBlock(64, 128, 2)
         self.res3 = ResBlock(128, 256, 2)
         self.res4 = ResBlock(256, 512, 2)
-        self.global_pool = nn.AdaptiveAvgPool2d(1,1)
-        self.fc = nn.Linear(512,2)
+        self.global_pool = nn.AdaptiveAvgPool2d((1, 1))
+        self.fc = nn.Linear(512, 2)
 
     def forward(self, x):
         out = self.conv1(x)
@@ -60,4 +61,3 @@ class ResNet(nn.Module):
         out = self.fc(out)
         out = F.sigmoid(out)
         return out
-
