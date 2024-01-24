@@ -61,6 +61,7 @@ class Trainer:
         self._optim.zero_grad()
 
         y_pred = self._model(x)
+        y = y.type_as(y_pred)
         loss = self._crit(y_pred, y)
         loss.backward()
         self._optim.step()
@@ -74,6 +75,7 @@ class Trainer:
         # propagate through the network and calculate the loss and predictions
         # return the loss and the predictions
         y_pred = self._model(x)
+        y = y.type_as(y_pred)
 
         loss = self._crit(y_pred, y)
         return loss.item(), y_pred

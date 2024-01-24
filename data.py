@@ -17,7 +17,7 @@ class ChallengeDataset(Dataset):
         self.mode = mode
         self._transform = tv.transforms.Compose([tv.transforms.ToPILImage(),  # Use only if the input image is not a PIL image
                                                  tv.transforms.ToTensor(),
-                                                 tv.transforms.Normalize(mean=[train_mean], std=[train_std])])
+                                                 tv.transforms.Normalize(mean=train_mean, std=train_std)])
 
     @property
     def transform(self):
@@ -49,6 +49,7 @@ class ChallengeDataset(Dataset):
         # Transform image
         image = gray2rgb(image)
         image = self.transform(image)
+        image = image.unsqueeze(0)
 
         # Stack labels into tensor
         labels = torch.tensor([crack_label, inactive_label])
