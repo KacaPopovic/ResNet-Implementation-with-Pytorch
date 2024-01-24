@@ -33,8 +33,8 @@ class ChallengeDataset(Dataset):
     def __getitem__(self, index):
 
         # Load labels
-        if torch.is_tensor(index):
-            index = index.tolist()
+        #if torch.is_tensor(index):
+            #index = index.tolist()
         sample = self.data.iloc[index]
         relative_path = sample["filename"]
         crack_label = sample["crack"]
