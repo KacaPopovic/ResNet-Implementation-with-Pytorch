@@ -32,6 +32,10 @@ trainer = Trainer(model = resnet_model, crit = loss, optim = optim, train_dl = d
 # go, go, go... call fit on trainer
 res = trainer.fit(epochs = 2)
 
+print(res[0][-1])
+print(res[1][-1])
+print(res[2][-1])
+
 # plot the results
 plt.plot(np.arange(len(res[0])), res[0], label='train loss')
 plt.plot(np.arange(len(res[1])), res[1], label='val loss')

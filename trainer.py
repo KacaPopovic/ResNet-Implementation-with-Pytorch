@@ -133,12 +133,13 @@ class Trainer:
         train_losses, val_losses = [], []
         epoch = 0
         epochs_increasing = 0
+        accuracies = []
         while epoch < epochs:
       
             # stop by epoch number
             # train for a epoch and then calculate the loss and metrics on the validation set
             train_loss = self.train_epoch()
-            val_loss = self.val_test()
+            val_loss, accuracy = self.val_test()
             if len(val_losses) == 0:
                 epochs_increasing += 1
             else:
@@ -149,6 +150,7 @@ class Trainer:
             # append the losses to the respective lists
             train_losses.append(train_loss)
             val_losses.append(val_loss)
+            accuracies.append(accuracy)
             # use the save_checkpoint function to save the model (can be restricted to epochs with improvement)
             self.save_checkpoint(epoch)
             # check whether early stopping should be performed using the early stopping criterion and stop if so
@@ -156,4 +158,4 @@ class Trainer:
                 return train_losses, val_losses
             # return the losses for both training and validation
             epoch += 1
-        return train_losses, val_losses
+        return train_losses, val_losses, accuracies
