@@ -28,7 +28,7 @@ loss = t.nn.BCELoss()
 optim = t.optim.SGD(resnet_model.parameters(), lr= 0.01) #TODO add momentum
 # create an object of type Trainer and set its early stopping criterion
 
-trainer = Trainer(model = resnet_model, crit = loss, optim = optim, train_dl = dataset_train, val_test_dl =dataset_test, cuda = False)
+trainer = Trainer(model = resnet_model, crit = loss, optim = optim, train_dl = dataset_train, val_test_dl =dataset_test, cuda = True)
 # go, go, go... call fit on trainer
 res = trainer.fit(epochs = 2)
 
