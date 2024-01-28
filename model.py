@@ -57,7 +57,7 @@ class ResNet(nn.Module):
         out = self.res3(out)
         out = self.res4(out)
         out = self.global_pool(out)
-        out = torch.flatten(out)
+        out = torch.flatten(out, start_dim=1)
         out = self.fc(out)
         out = torch.sigmoid(out)
         return out

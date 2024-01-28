@@ -49,7 +49,7 @@ class ChallengeDataset(Dataset):
         # Transform image
         image = gray2rgb(image)
         image = self.transform(image)
-        image = image.unsqueeze(0)
+        #image = image.unsqueeze(0)
 
         # Stack labels into tensor
         labels = torch.tensor([crack_label, inactive_label])
