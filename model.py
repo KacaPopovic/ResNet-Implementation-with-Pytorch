@@ -48,7 +48,11 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512, 2)
 
     def forward(self, x):
+        flag = False
         out = self.conv1(x)
+        if out.dim()==3:
+            out = out.unsqueeze(0)
+            flag = True
         out = self.bn1(out)
         out = F.relu(out)
         out = self.max_pool(out)
@@ -60,4 +64,6 @@ class ResNet(nn.Module):
         out = torch.flatten(out, start_dim=1)
         out = self.fc(out)
         out = torch.sigmoid(out)
+        if flag:
+            out = out.squeeze(0)
         return out
