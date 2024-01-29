@@ -84,6 +84,7 @@ class Trainer:
         
     def train_epoch(self):
         # set training mode
+        self._train_dl.shuffle()
         self._model.train()
         total_loss = 0
         # iterate through the training set

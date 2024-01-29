@@ -6,6 +6,7 @@ from skimage.color import gray2rgb
 import numpy as np
 import torchvision as tv
 import os
+import random
 
 train_mean = [0.59685254, 0.59685254, 0.59685254]
 train_std = [0.16043035, 0.16043035, 0.16043035]
@@ -29,6 +30,9 @@ class ChallengeDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+    def shuffle(self):
+        random.shuffle(self.data)
 
     def __getitem__(self, index):
 
