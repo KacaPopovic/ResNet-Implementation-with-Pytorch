@@ -32,7 +32,8 @@ class ChallengeDataset(Dataset):
         return len(self.data)
 
     def shuffle(self):
-        random.shuffle(self.data)
+        # Shuffle the DataFrame
+        self.data = self.data.sample(frac=1).reset_index(drop=True)
 
     def __getitem__(self, index):
 

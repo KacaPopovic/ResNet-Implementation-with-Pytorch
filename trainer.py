@@ -105,8 +105,8 @@ class Trainer:
 
         self._model.eval()
         total_loss = 0
-        predictions = []
-        labels = []
+        all_predictions = []
+        all_labels = []
         # disable gradient computation. Since you don't need to update the weights during testing, gradients aren't required anymore.
         with t.no_grad():
         # iterate through the validation set
@@ -116,17 +116,26 @@ class Trainer:
                     x = x.cuda()
                     y = y.cuda()
             # perform a validation step
+                if self._cuda:
+                    y_pred = y_pred.cpu()
+                    y = y.cpu()
                 loss, y_pred = self.val_test_step(x, y)
                 total_loss += loss
-                labels.append(y)
-                predictions.append(y_pred)
+                y_pred_binary = (y_pred > 0.5).long()
+
+                # Accumulate flat lists of predictions and labels
+                all_predictions.extend(y_pred_binary.view(-1).numpy())
+                all_labels.extend(y.view(-1).numpy())
         # save the predictions and the labels for each batch
         # calculate the average loss and average metrics of your choice.
         # You might want to calculate these metrics in designated functions
         # return the loss and print the calculated metrics
         avg_loss = total_loss / len(self._val_test_dl)
-        accuracy = sum(prediction == label for prediction, label in zip(predictions, labels))/len(predictions)
-        return avg_loss, accuracy
+
+        # Calculate F1 score
+        f1 = f1_score(all_labels, all_predictions, average='binary')  # adjust 'average' as needed for your task
+
+        return avg_loss, f1
 
     def fit(self, epochs=-1):
         assert self._early_stopping_patience > 0 or epochs > 0
@@ -134,13 +143,13 @@ class Trainer:
         train_losses, val_losses = [], []
         epoch = 0
         epochs_increasing = 0
-        accuracies = []
+        f1_scores = []
         while epoch < epochs:
       
             # stop by epoch number
             # train for a epoch and then calculate the loss and metrics on the validation set
             train_loss = self.train_epoch()
-            val_loss, accuracy = self.val_test()
+            val_loss, f1 = self.val_test()
             if len(val_losses) == 0:
                 epochs_increasing += 1
             else:
@@ -151,7 +160,7 @@ class Trainer:
             # append the losses to the respective lists
             train_losses.append(train_loss)
             val_losses.append(val_loss)
-            accuracies.append(accuracy)
+            f1_scores.append(f1)
             # use the save_checkpoint function to save the model (can be restricted to epochs with improvement)
             self.save_checkpoint(epoch)
             # check whether early stopping should be performed using the early stopping criterion and stop if so
@@ -159,4 +168,4 @@ class Trainer:
                 return train_losses, val_losses
             # return the losses for both training and validation
             epoch += 1
-        return train_losses, val_losses, accuracies
+        return train_losses, val_losses, f1_scores
