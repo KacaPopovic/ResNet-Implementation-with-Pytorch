@@ -116,10 +116,10 @@ class Trainer:
                     x = x.cuda()
                     y = y.cuda()
             # perform a validation step
+                loss, y_pred = self.val_test_step(x, y)
                 if self._cuda:
                     y_pred = y_pred.cpu()
                     y = y.cpu()
-                loss, y_pred = self.val_test_step(x, y)
                 total_loss += loss
                 y_pred_binary = (y_pred > 0.5).long()
 
