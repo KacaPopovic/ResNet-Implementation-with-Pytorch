@@ -59,6 +59,7 @@ class ChallengeDataset(Dataset):
         # Conditionally apply the horizontal flip transformation
         if flip:
             image = F.hflip(image)
+            image = F.to_tensor(image)
 
         # Apply other transformations
         image = self.transform(image)
