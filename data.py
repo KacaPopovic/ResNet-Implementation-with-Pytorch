@@ -59,6 +59,9 @@ class ChallengeDataset(Dataset):
         # Apply other transformations
         image = self.transform(image)
 
+        crack_label = int(crack_label) if isinstance(crack_label, str) else crack_label
+        inactive_label = int(inactive_label) if isinstance(inactive_label, str) else inactive_label
+
         # Stack labels into tensor
         labels = torch.tensor([crack_label, inactive_label])
 
