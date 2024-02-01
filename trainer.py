@@ -163,8 +163,11 @@ class Trainer:
             f1_scores.append(f1)
             # use the save_checkpoint function to save the model (can be restricted to epochs with improvement)
             self.save_checkpoint(epoch)
+            print(
+                f"Epoch {epoch + 1}/{epochs}: Training Loss = {train_loss:.4f}, Validation Loss = {val_loss:.4f}, F1 Score = {f1:.4f}")
             # check whether early stopping should be performed using the early stopping criterion and stop if so
             if epochs_increasing >= self._early_stopping_patience:
+                print("Early stopping triggered.")
                 return train_losses, val_losses
             # return the losses for both training and validation
             epoch += 1
