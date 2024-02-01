@@ -30,7 +30,7 @@ class ChallengeDataset(Dataset):
         self._transform = tv.transforms.Compose(transformation)
 
     def __len__(self):
-        return len(self.data) * 2
+        return len(self.data)
 
     def shuffle(self):
         # Shuffle the DataFrame
@@ -55,11 +55,6 @@ class ChallengeDataset(Dataset):
 
         # Convert to RGB if grayscale
         image = gray2rgb(image)
-
-        # Conditionally apply the horizontal flip transformation
-        if flip:
-            image = F.hflip(image)
-            image = F.to_tensor(image)
 
         # Apply other transformations
         image = self.transform(image)
