@@ -38,11 +38,8 @@ class ChallengeDataset(Dataset):
 
     def __getitem__(self, index):
         # Determine if the requested index is for an original image or its flipped version
-        original_index = index % len(self.data)  # Find the corresponding index in the original dataset
-        flip = index >= len(self.data)  # Determine if the image should be flipped
-
         # Load labels
-        sample = self.data.iloc[original_index]
+        sample = self.data.iloc[index]
         relative_path = sample["filename"]
         crack_label = sample["crack"]
         inactive_label = sample["inactive"]
@@ -56,6 +53,7 @@ class ChallengeDataset(Dataset):
         # Convert to RGB if grayscale
         image = gray2rgb(image)
 
+        # TODO add different transforms for training
         # Apply other transformations
         image = self.transform(image)
 

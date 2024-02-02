@@ -2,6 +2,7 @@ import torch as t
 from sklearn.metrics import f1_score
 from tqdm.autonotebook import tqdm
 import os
+import numpy as np
 
 class Trainer:
 
@@ -68,7 +69,7 @@ class Trainer:
         loss.backward()
         self._optim.step()
 
-        return loss.item()
+        return loss.item(), y_pred
 
 
     def val_test_step(self, x, y):
@@ -84,9 +85,11 @@ class Trainer:
         
     def train_epoch(self):
         # set training mode
-        self._train_dl.shuffle()
+        #self._train_dl.shuffle()
         self._model.train()
         total_loss = 0
+        predictions = []
+        labels = []
         # iterate through the training set
         for x,y in self._train_dl:
             # transfer the batch to "cuda()" -> the gpu if a gpu is given
@@ -94,11 +97,22 @@ class Trainer:
                 x = x.cuda()
                 y = y.cuda()
             # perform a training step
-            loss = self.train_step(x,y)
+            loss, y_pred = self.train_step(x,y)
             total_loss+=loss
-        # calculate the average loss for the epoch and return it
+            y_pred_binary = (y_pred > 0.5).float()
+
+            predictions.append(y_pred_binary.cpu().numpy())
+            labels.append(y.cpu().numpy())
+
         avg_loss = total_loss / len(self._train_dl)
-        return avg_loss
+
+        all_predictions = np.vstack(predictions)
+        all_labels = np.vstack(labels)
+
+        # Calculate F1 score using 'samples' averaging for multi-label classification
+        mean_f1_score = f1_score(all_labels, all_predictions, average='samples', zero_division=0)
+
+        return avg_loss, mean_f1_score
     
     def val_test(self):
         # set eval mode. Some layers have different behaviors during training and testing (for example: Dropout, BatchNorm, etc.). To handle those properly, you'd want to call model.eval()
@@ -121,7 +135,7 @@ class Trainer:
                     y_pred = y_pred.cpu()
                     y = y.cpu()
                 total_loss += loss
-                y_pred_binary = (y_pred > 0.5).long()
+                y_pred_binary = (y_pred > 0.5).float()
 
                 # Accumulate flat lists of predictions and labels
                 all_predictions.extend(y_pred_binary.view(-1).numpy())
@@ -133,7 +147,7 @@ class Trainer:
         avg_loss = total_loss / len(self._val_test_dl)
 
         # Calculate F1 score
-        f1 = f1_score(all_labels, all_predictions, average='binary')  # adjust 'average' as needed for your task
+        f1 = f1_score(all_labels, all_predictions, average='samples', zero_devision=0)  # adjust 'average' as needed for your task
 
         return avg_loss, f1
 
@@ -148,8 +162,8 @@ class Trainer:
       
             # stop by epoch number
             # train for a epoch and then calculate the loss and metrics on the validation set
-            train_loss = self.train_epoch()
-            val_loss, f1 = self.val_test()
+            train_loss, train_f1 = self.train_epoch()
+            val_loss, val_f1 = self.val_test()
             if len(val_losses) == 0:
                 epochs_increasing += 1
             else:
@@ -160,11 +174,13 @@ class Trainer:
             # append the losses to the respective lists
             train_losses.append(train_loss)
             val_losses.append(val_loss)
-            f1_scores.append(f1)
+            f1_scores.append(train_f1)
             # use the save_checkpoint function to save the model (can be restricted to epochs with improvement)
             self.save_checkpoint(epoch)
-            print(
-                f"Epoch {epoch + 1}/{epochs}: Training Loss = {train_loss:.4f}, Validation Loss = {val_loss:.4f}, F1 Score = {f1:.4f}")
+            print(f'Training loss in epoch {epoch}: {train_loss:.5f}')
+            print(f'Validation loss in epoch {epoch}: {val_loss:.5f}')
+            print(f'Training F1 score in epoch {epoch}: {train_f1:.5f}')
+            print(f'Validation F1 score in epoch {epoch}: {val_f1:.5f}\n')
             # check whether early stopping should be performed using the early stopping criterion and stop if so
             if epochs_increasing >= self._early_stopping_patience:
                 print("Early stopping triggered.")
