@@ -3,8 +3,7 @@ import pandas as pd
 from PIL import Image
 from pathlib import Path
 
-# Load the original CSV file
-dataset_path = '/mnt/data/data.csv'
+# Load the original CSV file'
 df = pd.read_csv('data.csv', sep=';')
 
 # List to hold the rows for the new CSV
