@@ -109,10 +109,11 @@ class Trainer:
         all_predictions = np.vstack(predictions)
         all_labels = np.vstack(labels)
 
-        # Calculate F1 score using 'samples' averaging for multi-label classification
-        mean_f1_score = f1_score(all_labels, all_predictions, average='samples', zero_division=0)
+        f1_per_label = f1_score(all_labels, all_predictions, average=None,
+                      zero_division=0)  # adjust 'average' as needed for your task
+        f1 = np.mean(f1_per_label)
 
-        return avg_loss, mean_f1_score
+        return avg_loss, f1
 
     def val_test(self):
         # set eval mode. Some layers have different behaviors during training and testing (for example: Dropout, BatchNorm, etc.). To handle those properly, you'd want to call model.eval()
@@ -150,12 +151,14 @@ class Trainer:
         avg_loss = total_loss / len(self._val_test_dl)
 
         # Calculate F1 score
-        f1 = f1_score(all_labels, all_predictions, average='samples',
+        f1_per_label = f1_score(all_labels, all_predictions, average=None,
                       zero_division=0)  # adjust 'average' as needed for your task
+        f1 = np.mean(f1_per_label)
 
         return avg_loss, f1
 
     def fit(self, epochs=-1):
+        best_epoch = 0
         assert self._early_stopping_patience > 0 or epochs > 0
         train_losses, val_losses = [], []
         train_f1_scores, val_f1_scores = [], []
@@ -175,8 +178,9 @@ class Trainer:
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
+                best_epoch = epoch
                 epochs_since_improvement = 0  # Reset the counter
-                # best_model_state = copy.deepcopy(self._model.state_dict())  # Save the best model state
+                #best_model_state = copy.deepcopy(self._model.state_dict())  # Save the best model state
                 # Optionally save the model checkpoint here as well
             else:
                 epochs_since_improvement += 1  # Increment the counter if no improvement
@@ -187,11 +191,12 @@ class Trainer:
             if epochs_since_improvement >= self._early_stopping_patience:
                 print("Early stopping triggered.")
                 break
+            self.save_checkpoint(epoch)
 
             epoch += 1
 
         # If best_model_state is not None, load it into the model
-        # if best_model_state is not None:
+        #if best_model_state is not None:
         #   self._model.load_state_dict(best_model_state)
 
-        return train_losses, val_losses, train_f1_scores, val_f1_scores, self._model
+        return train_losses, val_losses, train_f1_scores, val_f1_scores, best_epoch

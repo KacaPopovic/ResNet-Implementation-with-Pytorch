@@ -41,6 +41,13 @@ trainer = Trainer(model = resnet_model,
 # go, go, go... call fit on trainer
 res = trainer.fit(epochs = 200)
 
+best_epoch = res[4]
+
+# Saving the model
+
+trainer.restore_checkpoint(best_epoch)
+trainer.save_onnx('checkpoint_{:03d}.onnx'.format(best_epoch))
+
 print(res[0][-1])
 print(res[1][-1])
 print(res[2][-1])
