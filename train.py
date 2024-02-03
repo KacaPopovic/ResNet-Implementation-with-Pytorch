@@ -20,8 +20,8 @@ dataset_test = ChallengeDataset(train_df, mode = 'val')
 # Create the DataLoaders for training and validation
 # Set the batch_size to the desired number of images per batch
 # Set shuffle=True for the training data loader to shuffle the dataset before creating batches
-train_loader = DataLoader(dataset_train, batch_size=32, shuffle=True)
-val_loader = DataLoader(dataset_test, batch_size=32, shuffle=False)
+train_loader = DataLoader(dataset_train, batch_size=128, shuffle=True)
+val_loader = DataLoader(dataset_test, batch_size=128, shuffle=False)
 
 
 # create an instance of our ResNet model
@@ -31,12 +31,15 @@ resnet_model = model.ResNet()
 
 loss = t.nn.BCELoss()
 # set up the optimizer (see t.optim)
-optim = t.optim.RMSprop(resnet_model.parameters(), lr= 0.001, weight_decay=0.01) #TODO add momentum
+optim = t.optim.RMSprop(resnet_model.parameters(),
+lr= 0.001, weight_decay=0.00001) #TODO add momentum
 # create an object of type Trainer and set its early stopping criterion
 
-trainer = Trainer(model = resnet_model, crit = loss, optim = optim, train_dl = train_loader, val_test_dl =val_loader, cuda = True, early_stopping_patience = 5)
+trainer = Trainer(model = resnet_model,
+ crit = loss, optim = optim, train_dl = train_loader, val_test_dl =val_loader,
+  cuda = True, early_stopping_patience = 20)
 # go, go, go... call fit on trainer
-res = trainer.fit(epochs = 100)
+res = trainer.fit(epochs = 200)
 
 print(res[0][-1])
 print(res[1][-1])

@@ -54,6 +54,23 @@ class ChallengeDataset(Dataset):
         image = gray2rgb(image)
 
         # TODO add different transforms for training
+        # Perform transformations on the image.
+        if self.mode == 'train1':
+          self._transform = tv.transforms.Compose([
+            tv.transforms.ToPILImage(),
+            tv.transforms.RandomApply([tv.transforms.RandomRotation((90, 90)),
+                                       tv.transforms.RandomRotation((180, 180)),
+                                       tv.transforms.RandomRotation((270, 270))], p=0.2),
+            tv.transforms.RandomVerticalFlip(p=0.5),
+            tv.transforms.ToTensor(),
+            tv.transforms.RandomErasing()
+        ])
+        else:
+          self._transform = tv.transforms.Compose([
+              tv.transforms.ToPILImage(),
+              tv.transforms.ToTensor(),
+              tv.transforms.Normalize(mean=train_mean, std=train_std)
+          ])
         # Apply other transformations
         image = self.transform(image)
 
