@@ -4,7 +4,7 @@ from PIL import Image
 from pathlib import Path
 
 # Load the original CSV file'
-df = pd.read_csv('data.csv', sep=';')
+df = pd.read_csv('data_augmented.csv', sep=';')
 
 # List to hold the rows for the new CSV
 augmented_data = []
@@ -19,11 +19,11 @@ for index, row in df.iterrows():
     image = Image.open(original_path)
 
     # Flip the image horizontally
-    flipped_image = image.transpose(Image.FLIP_LEFT_RIGHT)
+    flipped_image = image.transpose(Image.FLIP_TOP_BOTTOM)
 
     # Generate the new filename for the flipped image
     path_parts = os.path.split(original_path)
-    flipped_filename = f"{path_parts[0]}/{Path(path_parts[1]).stem}_flipped.png"
+    flipped_filename = f"{path_parts[0]}/{Path(path_parts[1]).stem}_vertical.png"
 
     # Save the flipped image in the same directory as the original
     flipped_image.save(flipped_filename)
@@ -36,7 +36,7 @@ for index, row in df.iterrows():
 augmented_df = pd.DataFrame(augmented_data, columns=['filename', 'crack', 'inactive'])
 
 # Save the new DataFrame to a CSV file
-augmented_csv_path = 'data_augmented.csv'
+augmented_csv_path = 'data_augmented2.csv'
 augmented_df.to_csv(augmented_csv_path, index=False, sep=';')
 
 augmented_csv_path, augmented_df.head()
